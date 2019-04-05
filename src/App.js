@@ -10,7 +10,18 @@ class BooksApp extends React.Component {
   }
 
   /**
-  * @description Add a book to the shelf
+  * @description Constructor, get sorted books from local storage if exists.
+  * @param {Object} props - Props from parent compoment
+  */
+  constructor(props) {
+    super(props);
+    this.state = {
+      sortedBooks: JSON.parse(localStorage.getItem('sortedBooks')) || []
+    }    
+  }
+
+  /**
+  * @description Add a book to the shelf. Persist state to local storage.
   * @param {Object} book - The book object as received from the API
   * @param {string} shelf - The type of the shelf (board where the book is placed)
   */
@@ -18,11 +29,13 @@ class BooksApp extends React.Component {
     const sortedBook = {
       book, shelf
     }
-    this.setState( (prevState) => ({sortedBooks: [...prevState['sortedBooks'], sortedBook]}) );
+    let extendedBooks = [...this.state.sortedBooks, sortedBook];
+    this.setState( {sortedBooks: extendedBooks} );
+    localStorage.setItem('sortedBooks', JSON.stringify(extendedBooks));
   }
 
   /**
-  * @description Move a book to another shelf-type (board)
+  * @description Move a book to another shelf-type (board). Persist state to local storage.
   * @param {Object} event - The change event from the shelf selection drop down menu
   */
   moveBook = (event) => {
@@ -40,6 +53,7 @@ class BooksApp extends React.Component {
       sortedBooksCopy[index].shelf = targetShelf;
     }
     this.setState( { sortedBooks: sortedBooksCopy } );
+    localStorage.setItem('sortedBooks', JSON.stringify(sortedBooksCopy));
   }  
 
   /**
