@@ -1,37 +1,68 @@
 import React from 'react'
-// import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookSearch from './BookSearch.js'
-import BookShelfs from './BookShelfs.js'
+import BookShelf from './BookShelf.js'
+import { Route, Link } from 'react-router-dom'
 
 class BooksApp extends React.Component {
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false,
-    sortedBooks: []
+    sortedBooks: [],
   }
 
-  showSearchPage = () => this.setState({ showSearchPage: true })
+  addBook = (book, shelf) => {
+    const sortedBook = {
+      book, shelf
+    }
+    this.setState( (prevState) => ({sortedBooks: [...prevState['sortedBooks'], sortedBook]}) );
+  }
 
-  hideSearchPage = () => this.setState({ showSearchPage: false })
+  moveBook = (event) => {
+    event.preventDefault();
+    const bookid = event.target.id;
+    const targetShelf = event.target.value;
+    let sortedBooksCopy = [...this.state.sortedBooks];
+    let index = sortedBooksCopy.findIndex( sortedBook => sortedBook.book.id === bookid );
+    // Remove book
+    if ( targetShelf === 'none') { 
+      sortedBooksCopy.splice(index, 1);
+    } 
+    // Move book
+    else {
+      sortedBooksCopy[index].shelf = targetShelf;
+    }
+    this.setState( { sortedBooks: sortedBooksCopy } );
+  }  
 
-  updateBookShelf = (sortedBooks) => this.setState( (prevState) => ({books: [...prevState.sortedBooks, sortedBooks]}) )
+  booksInShelf = (shelfType) => {
+    return this.state.sortedBooks.filter( book => book.shelf === shelfType );
+  }
 
   render() {
     return (
       <div className="app">
-        {this.state.showSearchPage ? (
-          <BookSearch onHideSearchPage={this.hideSearchPage} onUpdateBookShelf={this.updateBookShelf} ></BookSearch>
-        ) : (
-          <BookShelfs onShowSearchPage={this.showSearchPage} ></BookShelfs>
-        )}
+        <Route path="/search" render={() => (
+          <BookSearch onSortBook={this.addBook} booksInShelf={this.state.sortedBooks} ></BookSearch>
+        )} />
+        <Route exact path="/" render={() => (
+          <div>
+            <div className="list-books">
+            <div className="list-books-title">
+              <h1>MyReads</h1>
+            </div>
+            <div className="list-books-content">
+              <BookShelf shelfType={'currentlyReading'} shelfName={'Currently reading'} booksInShelf={this.booksInShelf} onMoveBook={this.moveBook} ></BookShelf>
+              <BookShelf shelfType={'wantToRead'} shelfName={'Want to read'} booksInShelf={this.booksInShelf} onMoveBook={this.moveBook} ></BookShelf>
+              <BookShelf shelfType={'read'} shelfName={'Read'} booksInShelf={this.booksInShelf} onMoveBook={this.moveBook} ></BookShelf>
+            </div>
+            </div>
+            <div className="open-search">
+              <Link to="/search">
+                <button>Add a book</button>
+              </Link>
+            </div>
+          </div>
+        )} />
       </div>
-  
     )
   }
 }

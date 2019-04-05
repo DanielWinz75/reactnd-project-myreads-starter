@@ -1,96 +1,100 @@
-import React, {Component} from 'react'
-import {getAll} from './BooksAPI.js'
-import {sortedBooks} from './BookShelf.js'
+import React from 'react'
+import {search} from './BooksAPI.js'
 import './App.css'
-import { stat } from 'fs';
+import {Link} from 'react-router-dom'
+import _ from 'lodash'
+import ShelfSelect from './ShelfSelect.js'
 
 class BookSearch extends React.Component {
-
     state = {
-        books: [],
-        sortedBooks: []
+        searchedBooks: [],
+        query: '',
+        error: '',
     }
 
-    componentDidMount() {
-        getAll().then( (books) => {
-            books.map( (book) => 
-                this.setState( (prevState) => ({books: [...prevState.books, book]}) )
-            )
-        });
+    constructor(props){
+        super(props);
+        this.handleSearchDebounced = _.debounce(function () {
+            if ( this.state.query.length <= 2 ) {
+                this.setState( () => ({searchedBooks: []}) );
+                this.setState({error: 'Minum three characters are required to search.'});
+            } else {
+                search(this.state.query).then( (searchedBooks) => {
+                    if (searchedBooks && searchedBooks.length > 0) {
+                        this.setState({error: ''});
+                        searchedBooks.map( () => 
+                            this.setState( () => ({searchedBooks: searchedBooks}) )
+                        )
+                    } else {
+                        this.setState({error: `No result for ${this.state.query}.`});
+                    }
+                });
+            }
+        }, 400);
+    };
+
+    searchBooks = (event) => {
+        this.setState({query: event.target.value});
+        this.handleSearchDebounced();
     }
 
-    coverStyle = (bookid) => {
-        return {
-            width: 128, 
-            height: 193, 
-            backgroundImage: 'url("http://books.google.com/books/content?id=' + bookid + '&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE73-GnPVEyb7MOCxDzOYF1PTQRuf6nCss9LMNOSWBpxBrz8Pm2_mFtWMMg_Y1dx92HT7cUoQBeSWjs3oEztBVhUeDFQX6-tWlWz1-feexS0mlJPjotcwFqAg6hBYDXuK_bkyHD-y&source=gbs_api")'
-        }
-    }
-
-    handleSelect = (event) => {
-        const bookid = event.target.name;
+    /**
+     * Pass the book and the selected shelf to the parent compoment (App)
+     */
+    passBookToParent = (event) => {
+        event.preventDefault();
+        const bookid = event.target.id;
         const targetShelf = event.target.value;
         let selectedBook = undefined;
-        for (let book of this.state.books) {
+        for (let book of this.state.searchedBooks) {
             if(book.id === bookid) {
                 selectedBook = book;
             }
         }
-        const sortedBook = {
-            selectedBook, targetShelf
-        }
-        this.setState( (prevState) => ({sortedBooks: [...prevState.sortedBooks, sortedBook]}) );
-    }
-
-    handleSubmit = () => {
-        // TODO: put sorted books to the sortedbooks array in the App state
+        this.props.onSortBook(selectedBook, targetShelf);
     }
 
     render() {
         return(
             <div className="search-books">
                 <div className="search-books-bar">
-                    {/* <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button> */}
-                    <button className="close-search" onClick={this.props.onHideSearchPage}>Close</button>
+                    <Link to="/">
+                        <button className="close-search">Close</button>
+                    </Link>
                     <div className="search-books-input-wrapper">
-                    {/*
-                    NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                    You can find these search terms here:
-                    https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                    However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                    you don't find a specific author or title. Every search is limited by search terms.
-                    */}
-                        <input type="text" placeholder="Search by title or author"/>
+                        <input type="text" placeholder="Search by title or author" onChange={this.searchBooks} />
                     </div>
                 </div>
+                <h2 className="bookshelf-title">Search</h2>
+                <h3 className="search-error">{this.state.error !== '' && this.state.error}</h3>
                 <div className="search-books-results">
-                    <form onSubmit={this.handleSubmit}>
                     <ol className="books-grid">
-                    {this.state.books.map( (book) => (
+                    {this.state.error === '' && this.state.searchedBooks.map( (book) => (
                         <li key={book.id}>
                             <div className="book">
                                 <div className="book-top">
-                                    <div className="book-cover" style={this.coverStyle(book.id)}></div>
-                                    <div className="book-shelf-changer">
-                                    <select onChange={this.handleSelect} name={book.id}>
-                                        <option value="move" disabled>Move to...</option>
-                                        <option value="currentlyReading">Currently Reading</option>
-                                        <option value="wantToRead">Want to Read</option>
-                                        <option value="read">Read</option>
-                                        <option value="none">None</option>
-                                    </select>
-                                    </div>
+                                    <div className="book-cover" style={
+                                        {
+                                            width: 128, 
+                                            height: 193, 
+                                            backgroundImage: `url("${book.imageLinks.thumbnail}")`
+                                        }
+                                    }></div>
+                                    <ShelfSelect 
+                                        booksInShelf={this.props.booksInShelf} 
+                                        onPassBookToParent={this.passBookToParent}
+                                        bookid={book.id}>
+                                    </ShelfSelect>
                                 </div>
                                 <div className="book-title">{book.title}</div>
                                 <div className="book-authors">{book.author}</div>
                             </div>
                         </li>
                     ))}
-                    </ol>
-                    </form>                    
+                    </ol>               
                 </div>
-            </div>)
+            </div>
+        )
     }
 }
 
