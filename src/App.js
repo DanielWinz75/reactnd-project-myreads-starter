@@ -43,9 +43,9 @@ class BooksApp extends React.Component {
   }  
 
   /**
-  * @description Move a book to another shelf-type (board)
-  * @param {Object} event - The change event from the shelf selection drop down menu
-  * @returns {Object} booksInShelf - Array of books that are sorted to a particular shelf/board
+  * @description Get books filtered by shelf type
+  * @param {string} shelfType - Type of the shelf
+  * @returns {Object} booksInShelf - Array of books by shelf type
   */
   booksInShelf = (shelfType) => {
     return this.state.sortedBooks.filter( book => book.shelf === shelfType );
