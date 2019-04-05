@@ -3,7 +3,10 @@ import './App.css'
 import { throws } from 'assert';
 
 class BookShelf extends React.Component {
-
+  /**
+  * @description Render Book shelf page
+  * @returns {Object} JSX - Displays shelf and its content sorted by type (boards)
+  */
   render() {
     return (
       <div className="bookshelf">

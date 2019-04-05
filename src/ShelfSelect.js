@@ -1,5 +1,11 @@
 import React from 'react'
 
+/**
+* @description Render shelf selector that is attached to the books on the search page. If book is already in shelf the button style differs.
+* @constructor
+* @param {Object} props - Properties from the parent compoment / component that is calling this stateless functional component
+* @returns {Object} JSX - Displays the drop down where the book should be added to
+*/
 function ShelfSelect(props) {
     const shelfType = getShelfType(props);
     const isShelfed = (shelfType !== 'move') ? true : false;
@@ -17,6 +23,11 @@ function ShelfSelect(props) {
     );
 }
 
+/**
+* @description Get the type of the shelf/board where is book is already sorted to.
+* @param {Object} props - Properties from the parent compoment forewared by function ShelfSelect
+* @returns {string} shelfType - Type of shelf/board
+*/
 function getShelfType(props) {
     const shelfedBooks = props.booksInShelf;
     let shelfType = 'move';

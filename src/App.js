@@ -9,6 +9,11 @@ class BooksApp extends React.Component {
     sortedBooks: [],
   }
 
+  /**
+  * @description Add a book to the shelf
+  * @param {Object} book - The book object as received from the API
+  * @param {string} shelf - The type of the shelf (board where the book is placed)
+  */
   addBook = (book, shelf) => {
     const sortedBook = {
       book, shelf
@@ -16,6 +21,10 @@ class BooksApp extends React.Component {
     this.setState( (prevState) => ({sortedBooks: [...prevState['sortedBooks'], sortedBook]}) );
   }
 
+  /**
+  * @description Move a book to another shelf-type (board)
+  * @param {Object} event - The change event from the shelf selection drop down menu
+  */
   moveBook = (event) => {
     event.preventDefault();
     const bookid = event.target.id;
@@ -33,10 +42,19 @@ class BooksApp extends React.Component {
     this.setState( { sortedBooks: sortedBooksCopy } );
   }  
 
+  /**
+  * @description Move a book to another shelf-type (board)
+  * @param {Object} event - The change event from the shelf selection drop down menu
+  * @returns {Object} booksInShelf - Array of books that are sorted to a particular shelf/board
+  */
   booksInShelf = (shelfType) => {
     return this.state.sortedBooks.filter( book => book.shelf === shelfType );
   }
 
+  /**
+  * @description Render App (top/main Component)
+  * @returns {JSX} JSX containing routes for main page and search page
+  */
   render() {
     return (
       <div className="app">

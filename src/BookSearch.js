@@ -12,34 +12,48 @@ class BookSearch extends React.Component {
         error: '',
     }
 
+    /**
+     * @description Constructor, registers a debouncer. Debouncer defers search input change.
+     * @param {Object} props - Props from parent compoment
+     */    
     constructor(props){
         super(props);
-        this.handleSearchDebounced = _.debounce(function () {
-            if ( this.state.query.length <= 2 ) {
-                this.setState( () => ({searchedBooks: []}) );
-                this.setState({error: 'Minum three characters are required to search.'});
-            } else {
-                search(this.state.query).then( (searchedBooks) => {
-                    if (searchedBooks && searchedBooks.length > 0) {
-                        this.setState({error: ''});
-                        searchedBooks.map( () => 
-                            this.setState( () => ({searchedBooks: searchedBooks}) )
-                        )
-                    } else {
-                        this.setState({error: `No result for ${this.state.query}.`});
-                    }
-                });
-            }
-        }, 400);
+        this.handleSearchDebounced = _.debounce(this.searchAPI, 400);
     };
 
+    /**
+     * @description Search the API for books by book title and author. Stores result to component state.
+     */     
+    searchAPI = () => {
+        if ( this.state.query.length <= 2 ) {
+            this.setState( () => ({searchedBooks: []}) );
+            this.setState({error: 'Minum three characters are required to search.'});
+        } else {
+            search(this.state.query).then( (searchedBooks) => {
+                if (searchedBooks && searchedBooks.length > 0) {
+                    this.setState({error: ''});
+                    searchedBooks.map( () => 
+                        this.setState( () => ({searchedBooks: searchedBooks}) )
+                    )
+                } else {
+                    this.setState({error: `No result for ${this.state.query}.`});
+                }
+            });
+        }
+    }
+
+    /**
+     * @description Search for books. Calls the function searchAPI indirectly. Makes use of the debouncer that is implemented in the constructor. 
+     * @param {Object} event - Event triggered by changes in the book search input field.
+     */       
     searchBooks = (event) => {
         this.setState({query: event.target.value});
         this.handleSearchDebounced();
     }
 
     /**
-     * Pass the book and the selected shelf to the parent compoment (App)
+     * @description Pass the book and the selected shelf to the parent compoment
+     * @param {Object} event - Event triggered when changing the shelf by the drop down select that get attached to every book
      */
     passBookToParent = (event) => {
         event.preventDefault();
@@ -54,6 +68,10 @@ class BookSearch extends React.Component {
         this.props.onSortBook(selectedBook, targetShelf);
     }
 
+    /**
+    * @description Render Book search page
+    * @returns {Object} JSX - Containing search input and the result of the book API search
+    */
     render() {
         return(
             <div className="search-books">
