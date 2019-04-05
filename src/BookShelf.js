@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import { throws } from 'assert';
+import ShelfSelect from './ShelfSelect.js'
 
 class BookShelf extends React.Component {
   /**
@@ -25,18 +25,14 @@ class BookShelf extends React.Component {
                         backgroundImage: `url("${sortedBook.book.imageLinks.thumbnail}")`
                       }
                     }></div>
-                    <div className="book-shelf-changer">
-                      <select onChange={this.props.onMoveBook} id={sortedBook.book.id} value={this.props.shelfType}>
-                        <option value="move" disabled>Move to...</option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
-                      </select>
-                    </div>
+                    <ShelfSelect 
+                      shelfType={this.props.shelfType}
+                      onMoveBook={this.props.onMoveBook}
+                      bookid={sortedBook.book.id}>
+                    </ShelfSelect>
                   </div>
                   <div className="book-title">{sortedBook.book.title}</div>
-                  <div className="book-authors">{sortedBook.book.author}</div>
+                  <div className="book-authors">{sortedBook.book.authors}</div>
                 </div>
               </li>
             ))}

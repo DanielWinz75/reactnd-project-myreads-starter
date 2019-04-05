@@ -32,7 +32,7 @@ class BooksApp extends React.Component {
     let extendedBooks = [...this.state.sortedBooks, sortedBook];
     this.setState( {sortedBooks: extendedBooks} );
     localStorage.setItem('sortedBooks', JSON.stringify(extendedBooks));
-  }
+  }  
 
   /**
   * @description Move a book to another shelf-type (board). Persist state to local storage.
@@ -73,7 +73,7 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route path="/search" render={() => (
-          <BookSearch onSortBook={this.addBook} booksInShelf={this.state.sortedBooks} ></BookSearch>
+          <BookSearch onSortBook={this.addBook} booksInShelf={this.state.sortedBooks} onMoveBook={this.moveBook} ></BookSearch>
         )} />
         <Route exact path="/" render={() => (
           <div>
