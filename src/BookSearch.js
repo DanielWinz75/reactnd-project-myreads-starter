@@ -69,6 +69,29 @@ class BookSearch extends React.Component {
     }
 
     /**
+    * @description Get style of book's thumbnail and its URL. Return dummy svg if URL does not exsit.
+    * @returns {Object} Style object with width, height and URL to thumbnail
+    */
+    getThumbnailStyle(book) {
+        const dummyThumbnail = './icons/dummy.svg';
+        let thumbnailUrl;
+        if (book.imageLinks === undefined) {
+            thumbnailUrl = dummyThumbnail;
+        } 
+        else if (book.imageLinks.thumbnail === undefined || book.imageLinks.thumbnail === '') {
+            thumbnailUrl = dummyThumbnail;
+        }         
+        else {
+            thumbnailUrl = book.imageLinks.thumbnail;
+        }
+        return {
+            width: 128, 
+            height: 193, 
+            backgroundImage: `url("${thumbnailUrl}")`
+        };
+    }
+
+    /**
     * @description Render Book search page
     * @returns {Object} JSX - Containing search input and the result of the book API search
     */
@@ -91,11 +114,7 @@ class BookSearch extends React.Component {
                         <li key={book.id}>
                             <div className="book">
                                 <div className="book-top">
-                                    <div className="book-cover" style={{
-                                        width: 128, 
-                                        height: 193, 
-                                        backgroundImage: `url("${book.imageLinks.thumbnail}")`
-                                    }}></div>
+                                    <div className="book-cover" style={this.getThumbnailStyle(book)}></div>
                                     <ShelfSelect 
                                         booksInShelf={this.props.booksInShelf} 
                                         onPassBookToParent={this.passBookToParent}
