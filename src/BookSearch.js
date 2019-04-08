@@ -73,7 +73,7 @@ class BookSearch extends React.Component {
     * @returns {Object} Style object with width, height and URL to thumbnail
     */
     getThumbnailStyle(book) {
-        const dummyThumbnail = 'http://localhost:3000/public/dummy.svg';
+        const dummyThumbnail = '../public/dummy.svg';
         let thumbnailUrl;
         if (book.imageLinks === undefined) {
             thumbnailUrl = dummyThumbnail;
